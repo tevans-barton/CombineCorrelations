@@ -1,0 +1,8 @@
+Steps:
+    1. Create get combine data function in pfr_scraping
+       1. https://www.pro-football-reference.com/draft/2014-combine.htm
+    2. Pull down the spotrac data either with code or just pull down into files
+       1. https://www.spotrac.com/nfl/contracts/sort-value/all-time/draft-year-2012/limit-2000/
+    3. Cut out all but the second row when sorting by name and then age; can assume contract's at second youngest age will be second contracts
+    4. Standardize by season and by posiition?
+    5. Calculate and plot correlations of each combine metric with contract value
