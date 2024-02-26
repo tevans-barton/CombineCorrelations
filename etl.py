@@ -89,6 +89,7 @@ def __clean_contract_data(contract_df):
     Returns:
         pd.DataFrame of cleaned contract data
     """
+    Logger.debug('Running __clean_contract_data')
     df = contract_df.copy()
 
     #Drop rank column
@@ -98,8 +99,9 @@ def __clean_contract_data(contract_df):
     df.columns = ['Player', 'Age at Signing', 'Years', 'Value', 'AAV', 'Signing Bonus', 'Guaranteed at Signing', 'Practical Guaranteed']
 
     #Clean player names
-    df['Player'] = df['Player'].str.split('  ', expand = True)[0]
-    df['Contract Start Year'] = df['Player'].str.split('  ', expand = True)[1].str.split('|', expand = True)[1].str.split('-', expand = True)[0]
+    player_split = df['Player'].str.split('  ', expand = True)
+    df['Player'] = player_split[0]
+    df['Contract Start Year'] = player_split[1].str.split('|', expand = True)[1].str.split('-', expand = True)[0]
 
     #Clean non-money characters (commas, dollar signs, etc.)
     df['Value'] = df['Value'].str.replace('[^0-9]', '', regex=True).astype(float)
@@ -110,4 +112,5 @@ def __clean_contract_data(contract_df):
 
     df = df[['Player', 'Contract Start Year', 'Age at Signing', 'Years', 'Value', 'AAV', 'Signing Bonus', 'Guaranteed at Signing', 'Practical Guaranteed']]
 
+    Logger.debug('Finished running __clean_contract_data')
     return df
