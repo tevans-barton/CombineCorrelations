@@ -9,7 +9,7 @@ import pfr_scraping
 package_directory = os.path.dirname(os.path.abspath(__file__))
 
 import logging
-logging.basicConfig(filename='../logger.log', format='%(asctime)s %(levelname)s:%(name)s :: %(message)s', datefmt='%m/%d/%Y %H:%M:%S', encoding='utf-8', level=logging.INFO)
+logging.basicConfig(filename='../logger.log', format='%(asctime)s %(levelname)s:%(name)s :: %(message)s', datefmt='%m/%d/%Y %H:%M:%S', encoding='utf-8', level=logging.DEBUG)
 Logger = logging.getLogger(__name__)
 
 CONTRACT_URL = 'https://www.spotrac.com/nfl/contracts/sort-value/all-time/draft-year-{y}/limit-2000/'
@@ -27,7 +27,7 @@ def get_data():
     """
     Logger.debug('Running get_data')
     #Get data parameters
-    with open('data-params.json') as fh:
+    with open('../data-params.json') as fh:
         data_cfg = json.load(fh)
     years = data_cfg['years']
 
@@ -95,16 +95,19 @@ def __clean_contract_data(contract_df):
     df = df.drop(['Rank'], axis=1)
 
     #Rename columns
-    df.columns = ['Player', 'Age at Signing', 'Value', 'AAV', 'Signing Bonus', 'Guaranteed at Signing', 'Practical Guaranteed']
+    df.columns = ['Player', 'Age at Signing', 'Years', 'Value', 'AAV', 'Signing Bonus', 'Guaranteed at Signing', 'Practical Guaranteed']
 
     #Clean player names
     df['Player'] = df['Player'].str.split('  ', expand = True)[0]
+    df['Contract Start Year'] = df['Player'].str.split('  ', expand = True)[1].str.split('|', expand = True)[1].str.split('-', expand = True)[0]
 
     #Clean non-money characters (commas, dollar signs, etc.)
     df['Value'] = df['Value'].str.replace('[^0-9]', '', regex=True).astype(float)
     df['AAV'] = df['AAV'].str.replace('[^0-9]', '', regex=True).astype(float)
-    df['Signing Bonus'] = df['Sign Bonus'].str.replace('[^0-9]', '', regex=True).astype(float)
+    df['Signing Bonus'] = df['Signing Bonus'].str.replace('[^0-9]', '', regex=True).astype(float)
     df['Guaranteed at Signing'] = df['Guaranteed at Signing'].str.replace('[^0-9]', '', regex=True).astype(float)
     df['Practical Guaranteed'] = df['Practical Guaranteed'].str.replace('[^0-9]', '', regex=True).astype(float)
+
+    df = df[['Player', 'Contract Start Year', 'Age at Signing', 'Years', 'Value', 'AAV', 'Signing Bonus', 'Guaranteed at Signing', 'Practical Guaranteed']]
 
     return df
