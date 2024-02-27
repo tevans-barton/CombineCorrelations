@@ -29,11 +29,12 @@ def get_data():
     #Get data parameters
     with open('../data-params.json') as fh:
         data_cfg = json.load(fh)
-    years = data_cfg['years']
+    combine_years = data_cfg['combine_years']
+    contract_years = data_cfg['contract_years']
 
     #Get contract data
     contract_df = pd.DataFrame()
-    for y in years:
+    for y in contract_years:
         new_contract_df = __get_contract_data(y)
         new_contract_df['Draft Year'] = [y] * len(new_contract_df)
         contract_df = pd.concat([contract_df, new_contract_df], axis=0)
@@ -41,7 +42,7 @@ def get_data():
 
     #Get combine data
     combine_df = pd.DataFrame()
-    for y in years:
+    for y in combine_years:
         new_combine_df = pfr_scraping.get_combine_data(y)
         new_combine_df['Draft Year'] = [y] * len(new_combine_df)
         combine_df = pd.concat([combine_df, new_combine_df], axis=0)
@@ -101,7 +102,7 @@ def __clean_contract_data(contract_df):
     #Clean player names
     player_split = df['Player'].str.split('  ', expand = True)
     df['Player'] = player_split[0]
-    df['Contract Start Year'] = player_split[1].str.split('|', expand = True)[1].str.split('-', expand = True)[0]
+    df['Contract Start Year'] = player_split[1].str.split('|', expand = True)[1].str.split('-', expand = True)[0].str.replace(' ', '').astype(int)
 
     #Clean non-money characters (commas, dollar signs, etc.)
     df['Value'] = df['Value'].str.replace('[^0-9]', '', regex=True).astype(float)
