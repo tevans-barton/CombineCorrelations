@@ -22,6 +22,9 @@ def create_final_data():
     #Merge with the combine data
     merged_data = combine.merge(second_contracts, left_on='Player', right_on='Player', how='inner').reset_index(drop=True)
 
+    #Drop redundant position column
+    merged_data = merged_data.drop('Pos', axis=1)
+
     #Simplify the draft year to one column
     merged_data['Draft Year'] = merged_data['Draft Year_x']
     merged_data = merged_data.drop(['Draft Year_x', 'Draft Year_y'], axis=1)
@@ -30,7 +33,7 @@ def create_final_data():
     merged_data['Normalized Value'] = __normalize_contract_by_position(merged_data, contracts)
 
     #Cut down columns to just necessary columns
-    merged_data = merged_data[['Player', 'Pos', 'Ht', 'Wt', '40yd', 'Vertical', 'Bench', 'Broad Jump', '3Cone', 'Shuttle', 'Pick', 'Value', 'Normalized Value']]
+    merged_data = merged_data[['Player', 'Position', 'Ht', 'Wt', '40yd', 'Vertical', 'Bench', 'Broad Jump', '3Cone', 'Shuttle', 'Pick', 'Value', 'Normalized Value']]
 
     #Save the data
     if not os.path.exists(os.path.abspath('../data/')):
@@ -59,10 +62,9 @@ def __normalize_contract_by_position(merged_df, contracts):
     vals = []
     for row in merged_df.iterrows():
         row = row[1]
-        position = row['Pos']
+        position = row['Position']
         year = row['Contract Start Year']
-        player_names = merged_df[merged_df['Pos'] == position]['Player'].unique()
-        relevant_data = contracts[(contracts['Contract Start Year'] < year) & (contracts['Player'].isin(player_names))]
+        relevant_data = contracts[(contracts['Contract Start Year'] < year) & (contracts['Position'] == position)]
         val_mean = relevant_data['Value'].mean()
         val_std = relevant_data['Value'].std()
         try:

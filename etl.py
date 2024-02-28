@@ -102,7 +102,15 @@ def __clean_contract_data(contract_df):
     #Clean player names
     player_split = df['Player'].str.split('  ', expand = True)
     df['Player'] = player_split[0]
-    df['Contract Start Year'] = player_split[1].str.split('|', expand = True)[1].str.split('-', expand = True)[0].str.replace(' ', '').astype(int)
+
+    position_and_year_split = player_split[1].str.split('|', expand = True)
+    df['Position'] = position_and_year_split[0].str.strip()
+    #Clean position value
+    extraneous_position_words = ['Left', 'Right', 'Strong', 'Free']
+    extraneous_position_pattern = '(?:{})'.format('|'.join(extraneous_position_words))
+    df['Position'] = df['Position'].str.replace(extraneous_position_pattern, '', regex = True).str.strip()
+    #Create contract year column
+    df['Contract Start Year'] = position_and_year_split[1].str.split('-', expand = True)[0].str.replace(' ', '').astype(int)
 
     #Clean non-money characters (commas, dollar signs, etc.)
     df['Value'] = df['Value'].str.replace('[^0-9]', '', regex=True).astype(float)
@@ -111,7 +119,7 @@ def __clean_contract_data(contract_df):
     df['Guaranteed at Signing'] = df['Guaranteed at Signing'].str.replace('[^0-9]', '', regex=True).astype(float)
     df['Practical Guaranteed'] = df['Practical Guaranteed'].str.replace('[^0-9]', '', regex=True).astype(float)
 
-    df = df[['Player', 'Contract Start Year', 'Age at Signing', 'Years', 'Value', 'AAV', 'Signing Bonus', 'Guaranteed at Signing', 'Practical Guaranteed']]
+    df = df[['Player', 'Position', 'Contract Start Year', 'Age at Signing', 'Years', 'Value', 'AAV', 'Signing Bonus', 'Guaranteed at Signing', 'Practical Guaranteed']]
 
     Logger.debug('Finished running __clean_contract_data')
     return df
