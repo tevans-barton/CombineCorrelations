@@ -17,7 +17,7 @@ def create_final_data():
     combine = pd.read_csv('../data/raw/combine_data.csv')
 
     #Get the second contract each player received
-    second_contracts = contracts.groupby('Player').nth(1)
+    second_contracts = contracts.sort_values('Contract Start Year').groupby('Player').nth(1)
 
     #Merge with the combine data
     merged_data = combine.merge(second_contracts, left_on='Player', right_on='Player', how='inner').reset_index(drop=True)
